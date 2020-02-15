@@ -56,6 +56,7 @@ class CPFile:
             lines.append(f"{filename} lines: {startLine}-{endLine}")
             lines.append(self.codeLines(startLine, endLine))
             lines.append(f"\n{c.comment()}\n")
+            lines.append(50 * '-' + "\n")
         return "\n".join(lines)
 
     def firstComment(self) -> str:
