@@ -58,6 +58,13 @@ class CPFile:
             lines.append(f"\n{c.comment()}\n")
         return "\n".join(lines)
 
+    def firstComment(self) -> str:
+        listOfComments = self.comments()
+        if len(listOfComments) > 0:
+            c = listOfComments[0]
+            return f"{c.comment()}\n"
+        return ""
+
 class CPSubmission:
 
     def __init__(self, assignment, submission):
