@@ -127,7 +127,9 @@ class CPCourse:
         self._course = course
 
     def makeAssignment(self, name: str) -> CPAssignment:
-        assignment = codepost.assignment.create(course=self._course.id, name=name, points=100)
+        assignment = self._course.assignments.by_name(name)
+        if assignment is None:
+            assignment = codepost.assignment.create(course=self._course.id, name=name, points=100)
         return CPAssignment(assignment)
 
     def assignment(self, name: str) -> CPAssignment:
