@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 # ----------------------------------------------------------------------
-# cpDownloadComments.py
+# cpDownloadRubricAndComments.py
 # Dave Reed
-# 02/14/2020
+# 02/15/2020
 # ----------------------------------------------------------------------
+
 
 from argparse import ArgumentParser
 from CPAPI import *
@@ -12,11 +13,6 @@ from FileUtils import *
 
 # ----------------------------------------------------------------------
 
-def splitGradeText(text: str, sep="\n#####\n"):
-    items = text.split(sep)
-    return items
-
-# ----------------------------------------------------------------------
 def main():
     parser = ArgumentParser(description='download codepost.io comments into rubric grade file')
     parser.add_argument('--course-prefix', dest='coursePrefix', default='CS',
@@ -33,8 +29,8 @@ def main():
                         ''')
     parser.add_argument('-g', '--grade-file', dest='gradeFilename', default='grade.txt',
                         help='''name of file to download comments into''')
-    parser.add_argument('-r', '--rubric-file', dest='rubricFilename', default='rubric.txt',
-                        help='''name of file to download comments into''')
+    parser.add_argument('-r', '--rubric-file', dest='rubricFilename', default='1rubric.txt',
+                        help='''name of file that has rubric comment''')
     parser.add_argument('--comment-file', dest='commentFilename', default='comments.txt',
                         help='''name of file to download comments into''')
     parser.add_argument('-d', '--directory', dest='oneDirectory', default=None,
@@ -76,22 +72,27 @@ def main():
         if submission is not None:
             gradeFileInfo = FileInfo(cwd, directory, options.gradeFilename)
             gradeText = gradeFileInfo.contentsOf()
-            rubric, output = splitGradeText(gradeText)
+            rubricText = ""
             comments = []
             for name in files:
                 f = submission.fileWithName(name)
                 if f is not None:
-                    comments.append(f.formattedComments())
+                    if name != options.rubricFilename:
+                        comments.append(f.formattedComments())
+
+            f = submission.fileWithName(options.rubricFilename)
+            if f is not None:
+                rubricText = f.firstComment()
 
             comments = "\n".join(comments)
-            s = f"{rubric}\nComments:\n\n{comments}\n{output}\n"
+            s = f"{rubricText}\nComments:\n\n{comments}\n\n{gradeText}"
             gradeFileInfo.writeTo(s)
 
             commentFileInfo = FileInfo(cwd, directory, options.commentFilename)
             commentFileInfo.writeTo(comments)
 
             rubricFileInfo = FileInfo(cwd, directory, options.rubricFilename)
-            rubricFileInfo.writeTo(rubric)
+            rubricFileInfo.writeTo(rubricText)
 
 # ----------------------------------------------------------------------
 

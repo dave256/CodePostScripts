@@ -109,6 +109,9 @@ class FileInfo:
     def filePath(self) -> str:
         return self._filePath
 
+    def exists(self) -> bool:
+        return os.path.exists(self._filePath)
+
     def isDir(self) -> (bool, bool):
         if not os.path.exists(self._filePath):
             return False, False
