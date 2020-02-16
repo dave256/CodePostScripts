@@ -31,7 +31,7 @@ def main():
                         help='''name of file to download comments into''')
     parser.add_argument('-r', '--rubric-file', dest='rubricFilename', default='1rubric.txt',
                         help='''name of file that has rubric comment''')
-    parser.add_argument('--comment-file', dest='commentFilename', default='comments.txt',
+    parser.add_argument('--text-file', dest='commentFilename', default='comments.txt',
                         help='''name of file to download comments into''')
     parser.add_argument('-d', '--directory', dest='oneDirectory', default=None,
                         help='''just download files for the one specified student directory''')
@@ -74,22 +74,10 @@ def main():
             gradeText = gradeFileInfo.contentsOf()
             rubricText = ""
             comments = []
-            for name in files:
-                f = submission.fileWithName(name)
-                if f is not None:
-                    if name != options.rubricFilename:
-                        comments.append(f.formattedComments())
+            rubricText = submission.rubricCommentsByFile(files, cpAssignment)
 
-            f = submission.fileWithName(options.rubricFilename)
-            if f is not None:
-                rubricText = f.firstComment()
-
-            comments = "\n".join(comments)
-            s = f"{rubricText}\nComments:\n\n{comments}\n\n{gradeText}"
+            s = f"{rubricText}\n\n{gradeText}"
             gradeFileInfo.writeTo(s)
-
-            commentFileInfo = FileInfo(cwd, directory, options.commentFilename)
-            commentFileInfo.writeTo(comments)
 
             rubricFileInfo = FileInfo(cwd, directory, options.rubricFilename)
             rubricFileInfo.writeTo(rubricText)
