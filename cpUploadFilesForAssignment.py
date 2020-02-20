@@ -30,8 +30,9 @@ def main():
                         help='''just upload files for the one specified student directory''')
     parser.add_argument('-g', '--grade-file', dest='gradeFilename', default='grade.txt',
                         help='''name of file to upload contents for rubric''')
-    parser.add_argument('-r', '--rubric', dest='addRubric', action='store_true',
-                        help='''add 1rubric.txt''')
+    parser.add_argument('--no-test-output', dest='noTestOutput', action='store_true',
+                        help='''add contents of gradeFilename (defaults to grade.txt unless change with -g option) 
+                                as 1output.txt so first in list of files to view''')
 
     parser.add_argument('--overwrite', dest='overwrite', action='store_true',
                         help='''overwrite files if already exist''')
@@ -90,12 +91,12 @@ def main():
                             print(f"upload {info.filePath()}")
                             submission.uploadFile(f, text, overwrite=options.overwrite)
 
-                if options.addRubric:
+                if not options.noTestOutput:
                     gradeFile = FileInfo(cwd, studentEmail, options.gradeFilename)
                     text = gradeFile.contentsOf()
                     if text == "":
-                        text = "file for adding rubric comment\n"
-                    submission.uploadFile('1rubric.txt', text, overwrite=options.overwrite)
+                        text = "test output\n"
+                    submission.uploadFile('1output.txt', text, overwrite=options.overwrite)
             print()
 
 # ----------------------------------------------------------------------
