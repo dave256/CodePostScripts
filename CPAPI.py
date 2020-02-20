@@ -106,7 +106,7 @@ class CPFile:
     def codeLines(self, startLine, endLine):
         if self._code is None:
             self._code = self._file.code.split("\n")
-        return "\n".join(self._code[startLine-1:endLine])
+        return "\n".join(self._code[startLine:endLine+1])
 
     def fileID(self):
         return self._file.id
@@ -128,7 +128,7 @@ class CPFile:
         lines = []
         startLine = comment.startLine()
         endLine = comment.endLine()
-        lines.append(f"{self.filename()} lines: {startLine}-{endLine}")
+        lines.append(f"{self.filename()} lines: {startLine+1}-{endLine+1}")
         lines.append(self.codeLines(startLine, endLine))
         if rubricComment is not None:
             line = f"\n{rubricComment}\n{comment}".rstrip()
