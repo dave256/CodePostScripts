@@ -13,14 +13,14 @@ from FileUtils import *
 # ----------------------------------------------------------------------
 
 def main():
-    parser = ArgumentParser(description='upload specified files to a codepost.io assignment for all students')
+    parser = ArgumentParser(description='upload specified files to a codepost.io assignment for student directories')
     parser.add_argument('--course-prefix', dest='coursePrefix', default='CS',
                         help='''directory prefix for course names (i.e., if all your codepost.io course names and 
                         local directories start with CS such as CS160 then use the default
                         ''')
     parser.add_argument('-c', '--course-name', dest='course', default=None,
                         help='''name of course, if no name supplied, will try to find directory with coursePrefix in
-                        the current working directory
+                        the current working directory's parent directories
                         ''')
     parser.add_argument('-a', '--assignment-name', dest='assignment', default=None,
                         help='''name of assignment, if no name supplied will try to find directory with coursePrefix
@@ -37,16 +37,17 @@ def main():
     parser.add_argument('--overwrite', dest='overwrite', action='store_true',
                         help='''overwrite files if already exist''')
 
-    parser.add_argument("files", nargs='+', default=None)
+    parser.add_argument("files", nargs='+', default=None,
+                        help='''list of files (separated by spaces) to upload''')
 
     options = parser.parse_args()
     if options.course is None:
-        course, _, _, _ = FileInfo.infoForFilePath(os.getcwd())
+        course, _, _, _ = FileInfo.infoForFilePath(os.getcwd(), options.coursePrefix)
     else:
         course = options.course
 
     if options.assignment is None:
-        _, assignment, _, _ = FileInfo.infoForFilePath(os.getcwd())
+        _, assignment, _, _ = FileInfo.infoForFilePath(os.getcwd(), options.coursePrefix)
     else:
         assignment = options.assignment
 
@@ -80,6 +81,7 @@ def main():
             if len(studentFiles) != 0:
                 # get the submission
                 submission = cpAssignment.submissionForStudent(studentEmail)
+                # create submission for student if it does not exist
                 if submission is None:
                     submission = cpAssignment.makeSubmissionForStudent(studentEmail)
 
@@ -91,6 +93,9 @@ def main():
                             print(f"upload {info.filePath()}")
                             submission.uploadFile(f, text, overwrite=options.overwrite)
 
+                # upload the result of running my tests
+                # my test scripts put output in grade.txt
+                # upload that as 1output.txt so first in codepost file list
                 if not options.noTestOutput:
                     gradeFile = FileInfo(cwd, studentEmail, options.gradeFilename)
                     text = gradeFile.contentsOf()

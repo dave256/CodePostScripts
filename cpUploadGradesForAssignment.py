@@ -20,7 +20,7 @@ def main():
                         ''')
     parser.add_argument('-c', '--course-name', dest='course', default=None,
                         help='''name of course, if no name supplied, will try to find directory with coursePrefix in
-                        the current working directory
+                        the current working directory's parent directories
                         ''')
     parser.add_argument('-a', '--assignment-name', dest='assignment', default=None,
                         help='''name of assignment, if no name supplied will try to find directory with coursePrefix
@@ -33,12 +33,12 @@ def main():
 
     options = parser.parse_args()
     if options.course is None:
-        course, _, _, _ = FileInfo.infoForFilePath(os.getcwd())
+        course, _, _, _ = FileInfo.infoForFilePath(os.getcwd(), options.coursePrefix)
     else:
         course = options.course
 
     if options.assignment is None:
-        _, assignment, _, _ = FileInfo.infoForFilePath(os.getcwd())
+        _, assignment, _, _ = FileInfo.infoForFilePath(os.getcwd(), options.coursePrefix)
     else:
         assignment = options.assignment
 
@@ -68,11 +68,13 @@ def main():
 
             # if we have some files
             if len(studentFiles) != 0:
-                # get the submission
+                # get the submission in case it already exists
                 submission = cpAssignment.submissionForStudent(studentEmail)
+                # create submission for student if it does not exist
                 if submission is None:
                     submission = cpAssignment.makeSubmissionForStudent(studentEmail)
 
+                # upload 1rubric.txt as grade.txt (names can be overridden by command line arguments)
                 info = FileInfo(cwd, studentEmail, '1rubric.txt')
                 if info.filePath() in studentFiles:
                     text = info.contentsOf()

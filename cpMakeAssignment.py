@@ -20,7 +20,7 @@ def main():
                         ''')
     parser.add_argument('-c', '--course-name', dest='course', default=None,
                         help='''name of course, if no name supplied, will try to find directory with coursePrefix in
-                        the current working directory
+                        the current working directory's parent directories
                         ''')
     parser.add_argument("assignment", nargs='*', default=None)
 

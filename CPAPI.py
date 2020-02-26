@@ -1,48 +1,78 @@
 from __future__ import annotations
+from typing import List, Optional
 
-import os
 import codepost
 
 # ----------------------------------------------------------------------
 
 class CPComment:
+    """class for accessing a codepost.io Comment object"""
 
     def __init__(self, comment):
+        """
+        :param comment: codepost.io comment
+        """
         self._comment = comment
         comment.retrieve(id=comment.id)
         self._rubricCommentID = comment.rubricComment
+        # have pointDelta default to zero if does not have one
         if comment.pointDelta is None:
             self._pointDelta = 0.0
         else:
             self._pointDelta = comment.pointDelta
 
-    def text(self):
+    def text(self) -> str:
+        """
+        :return: text of the comment with trailing whitespace stripped
+        """
         return self._comment.text.rstrip()
 
-    def startLine(self):
+    def startLine(self) -> int:
+        """
+        :return: starting line number of the code that the comment is for
+        """
         return self._comment.startLine
 
-    def endLine(self):
+    def endLine(self) -> int:
+        """
+        :return: ending line number of the code that the comment is for
+        """
         return self._comment.endLine
 
-    def pointDelta(self):
+    def pointDelta(self) -> float:
+        """
+        :return: point delta for the comment
+        """
         return self._pointDelta
 
     def rubricCommentID(self):
+        """
+        :return: the codepost.io id for the rubric comment this comment is associated with (may be None)
+        """
         return self._rubricCommentID
 
-    def __lt__(self, other: CPComment):
+    def __lt__(self, other: CPComment) -> bool:
+        """
+        comparision operator so we can sort comments by the line numbers they correspond to
+        :param other:
+        :return: True if self's starting line number is less than other's starting line number
+        """
         return self._comment.startLine < other._comment.startLine
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self._pointDelta != 0.0:
             return f"{self.text()} ({(-self._comment.pointDelta):0.1f})"
         else:
             return self.text()
 
 class CPRubricComment:
+    """class for accessing codepost.io rubric comment"""
 
     def __init__(self, comment, category: CPRubricCategory):
+        """
+        :param comment: the codepost.io rubric comment
+        :param category: the rubric category for this rubric comment
+        """
         self._comment = comment
         self._category = category
         comment.retrieve(id=comment.id)
@@ -55,16 +85,25 @@ class CPRubricComment:
     def ID(self):
         return self._comment.id
 
-    def category(self):
+    def category(self) -> CPRubricCategory:
+        """
+        :return: the rubric category for this comment
+        """
         return self._category
 
-    def text(self):
+    def text(self) -> str:
+        """
+        :return: text of the comment with trailing whitespace stripped
+        """
         return self._comment.text.rstrip()
 
-    def pointDelta(self):
+    def pointDelta(self) -> float:
+        """
+        :return: point delta for the comment
+        """
         return self._pointDelta
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self._pointDelta != 0.0:
             return f"{self.text()} ({(-self._comment.pointDelta):0.1f})"
         else:
@@ -73,6 +112,9 @@ class CPRubricComment:
 class CPRubricCategory:
 
     def __init__(self, category):
+        """
+        :param category: codepost.io category object
+        """
         self._category = category
         category.retrieve(id=category.id)
         self._name = category.name
@@ -80,30 +122,52 @@ class CPRubricCategory:
         self._sortKey = category.sortKey
         self._comments = [CPRubricComment(c, self) for c in category.rubricComments]
 
-    def name(self):
+    def name(self) -> str:
+        """
+        :return: the name of the category
+        """
         return self._name
 
-    def comments(self):
+    def comments(self) -> List[CPRubricComment]:
+        """
+        :return: the list of rubric comment objects for this category
+        """
         return self._comments
 
-    def pointLimit(self):
+    def pointLimit(self) -> float:
+        """
+        :return: the point limit for the category
+        """
         return self._pointLimit
 
-    def __lt__(self, other: CPRubricCategory):
+    def __lt__(self, other: CPRubricCategory) -> bool:
+        """
+        comparison operator for sorting rubric categories by the codepost.io sort key (which I believe is order they are listed)
+        :param other: other rubric category to compare
+        :return: True if self < other, False otherwise
+        """
         return self._sortKey < other._sortKey
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._name
 
 class CPFile:
 
     def __init__(self, file):
+        """
+        :param file: the codepost.io File object
+        """
         self._file = file
         file.retrieve(id=file.id)
         self._comments = None
         self._code = None
 
-    def codeLines(self, startLine, endLine):
+    def codeLines(self, startLine, endLine) -> str:
+        """
+        :param startLine: starting line number
+        :param endLine: ending line number
+        :return: a string containing the lines of code from startLine to endLine
+        """
         if self._code is None:
             self._code = self._file.code.split("\n")
         return "\n".join(self._code[startLine:endLine+1])
@@ -111,13 +175,20 @@ class CPFile:
     def fileID(self):
         return self._file.id
 
-    def delete(self):
+    def delete(self) -> None:
+        """delete the file from codepost.io"""
         codepost.file.delete(self.fileID())
 
-    def filename(self):
+    def filename(self) -> str:
+        """
+        :return: the name of the file
+        """
         return self._file.name
 
-    def comments(self):
+    def comments(self) -> List[CPComment]:
+        """
+        :return: list of comments for the file sorted by starting line number
+        """
         if self._comments is None:
             self._comments = [CPComment(c) for c in self._file.comments]
         # sort by start line
@@ -125,6 +196,11 @@ class CPFile:
         return self._comments
 
     def formattedComment(self, comment: CPComment, rubricComment: CPRubricComment = None) -> str:
+        """
+        :param comment:
+        :param rubricComment:
+        :return: string containing the filename, lines of code, the rubricComment (if exists) and the comment
+        """
         lines = []
         startLine = comment.startLine()
         endLine = comment.endLine()
@@ -137,19 +213,10 @@ class CPFile:
             lines.append(f"\n{comment}\n\n")
         return "\n".join(lines)
 
-    # def formattedComments(self) -> str:
-    #     lines = []
-    #     filename = self.filename()
-    #     for c in self.comments():
-    #         startLine = c.startLine()
-    #         endLine = c.endLine()
-    #         lines.append(f"{filename} lines: {startLine}-{endLine}")
-    #         lines.append(self.codeLines(startLine, endLine))
-    #         lines.append(f"\n{c.text()}\n")
-    #         lines.append(50 * '-' + "\n")
-    #     return "\n".join(lines)
-
     def firstComment(self) -> str:
+        """
+        :return: the text of the first comment for the file
+        """
         listOfComments = self.comments()
         if len(listOfComments) > 0:
             c = listOfComments[0]
@@ -177,28 +244,43 @@ class CPSubmission:
                 return f
         return None
 
-    def uploadFile(self, filename, text, overwrite=False, renameTo=None):
+    def uploadFile(self, filename: str, text: str, overwrite: bool =False, renameTo=None) -> None:
+        """
+        upload file to codepost
+        :param filename: name of file in codepost
+        :param text: content of the file to upload
+        :param overwrite: if True, overwrite the existing file
+        :param renameTo: optionally rename the file
+        :return: None
+        """
         if renameTo is None:
             renameTo = filename
 
+        # delete existing file if overwrite specified
         if overwrite:
             existingFile = self.fileWithName(renameTo)
             if existingFile is not None:
                 codepost.file.delete(existingFile.fileID())
 
+        # get file extension
         extension = renameTo.split('.')[-1]
+        # upload to codepost
         codepost.file.create(name=renameTo, code=text, extension=extension, submission=self._submission.id)
 
-    def rubricCommentsByFile(self, fileNamesToProcess, assignment: CPAssignment) -> str:
-
+    def rubricCommentsByFile(self, fileNamesToProcess: List[str], assignment: CPAssignment) -> str:
+        """
+        :param fileNamesToProcess: the files to get the comments for
+        :param assignment: the assignment we are to get the comments for
+        :return: grade, totals per category, and each comment for the files in the submission
+        """
         rubricCategories = assignment.rubricCategories()
         deductions = { "Other": 0.0 }
 
         allComments = []
         for fileName in fileNamesToProcess:
             f = self.fileWithName(fileName)
+            fileComments = []
             if f is not None:
-                fileComments = []
                 for comment in f.comments():
                     rubricComment = assignment.rubricCommentForComment(comment)
                     fileComments.append(f.formattedComment(comment, rubricComment))
@@ -218,6 +300,7 @@ class CPSubmission:
         rubricLines = []
         totalPoints = 0.0
 
+        # get totals for each category
         for cat in rubricCategories:
             name = cat.name()
             pointLimit = cat.pointLimit()
@@ -252,12 +335,12 @@ class CPSubmission:
 
         return f"{rubricLines}{sep}{allComments}"
 
-        return allComments
-
-
 class CPAssignment:
 
     def __init__(self, assignment):
+        """
+        :param assignment: codepost.io assignment object
+        """
         self._assignment = assignment
         submissions = self._assignment.list_submissions()
         self._submissions = [CPSubmission(self._assignment, sub) for sub in submissions]
@@ -268,24 +351,43 @@ class CPAssignment:
         self._categories = None
         self._rubricCommentIDs = None
 
-    def submissions(self):
+    def submissions(self) -> List[CPSubmission]:
+        """
+        :return: list of submissions for the assignment
+        """
         return self._submissions
 
-    def submissionForStudent(self, studentEmail):
+    def submissionForStudent(self, studentEmail) -> Optional[CPSubmission]:
+        """
+        :param studentEmail: email address of submission for student
+        :return: CPSubmission for the student or None if submission for studentEmail does not exist
+        """
         return self._studentToSubmissions.get(studentEmail, None)
 
-    def makeSubmissionForStudent(self, studentEmail):
+    def makeSubmissionForStudent(self, studentEmail) -> CPSubmission:
+        """
+        create submission for student
+        :param studentEmail: email address of student to make submission for
+        :return: CPSubmission for the student
+        """
         submission = codepost.submission.create(assignment=self._assignment.id, students=[studentEmail])
         submission = CPSubmission(self._assignment, submission)
         self._studentToSubmissions[studentEmail] = submission
         return submission
 
-    def rubricCategories(self) -> []:
+    def rubricCategories(self) -> List[CPRubricCategory]:
+        """
+        :return: list of the rubric categories for the assignment
+        """
         if self._categories is None:
             self._loadRubricCategories()
         return self._categories
 
-    def _loadRubricCategories(self):
+    def _loadRubricCategories(self) -> None:
+        """
+        load the rubric categories for the assignment
+        :return: None
+        """
         categories = self._assignment.rubricCategories
         self._categories = [CPRubricCategory(c) for c in categories]
         self._categories.sort()
@@ -295,11 +397,24 @@ class CPAssignment:
             for comment in cat.comments():
                 self._rubricCommentIDs[comment.ID()] = comment
 
-    def categoryNamed(self, name):
+    def categoryNamed(self, name: str) -> Optional[CPRubricCategory]:
+        """
+        rubric category with the specified name for the assignment
+        :param name: name of category to find
+        :return: rubric category with the specified name or None if it does not exist
+        """
         if self._categories is None:
-            self.loadRubricCategories()
+            self._loadRubricCategories()
+        for cat in self._categories:
+            if cat.name() == name:
+                return cat
+        return None
 
-    def rubricCommentForComment(self, comment: CPComment) -> CPRubricComment:
+    def rubricCommentForComment(self, comment: CPComment) -> Optional[CPRubricComment]:
+        """
+        :param comment: comment for which to find the rubric comment
+        :return: the rubric comment for the comment or None if the comment does not have a rubric comment
+        """
         if self._categories is None:
             self._loadRubricCategories()
         return self._rubricCommentIDs.get(comment.rubricCommentID(), None)
@@ -308,29 +423,49 @@ class CPAssignment:
 class CPCourse:
 
     def __init__(self, course):
+        """
+        :param course: the codepost.io course object
+        """
         self._course = course
 
     def makeAssignment(self, name: str) -> CPAssignment:
+        """
+        create an assignment with the specified name unless it already exists
+        :param name: name of the assignment to make
+        :return: the Assignment object that existed or is created
+        """
         assignment = self._course.assignments.by_name(name)
         if assignment is None:
             assignment = codepost.assignment.create(course=self._course.id, name=name, points=100)
         return CPAssignment(assignment)
 
     def assignment(self, name: str) -> CPAssignment:
+        """
+        :param name: name of the assignment
+        :return: the assignment with specified name
+        """
         return CPAssignment(self._course.assignments.by_name(name))
 
 class CP:
+    """class to initialize connection to codepost.io"""
+
     config = None
 
     @staticmethod
-    def init(apiKey=""):
+    def init(apiKey:str = ""):
+        """
+        :param apiKey: codepost.io api key or if empty string, uses ~/.codepost-config.yaml
+        """
         if apiKey == "":
             CP.config = codepost.read_config_file()
         else:
             codepost.configure_api_key(apiKey)
 
     @staticmethod
-    def period():
+    def period() -> Optional[str]:
+        """
+        :return: the period in the codepost.io configuration or None if no period in configuration
+        """
         if CP.config is None:
             return None
         else:
@@ -338,6 +473,11 @@ class CP:
 
     @staticmethod
     def course(name: str, period: str = None) -> CPCourse:
+        """
+        :param name: name of course to get
+        :param period: period to get the course in
+        :return: the course with the specified name and period
+        """
         if period is None:
             period = CP.period()
         try:

@@ -21,7 +21,7 @@ def main():
                         ''')
     parser.add_argument('-c', '--course-name', dest='course', default=None,
                         help='''name of course, if no name supplied, will try to find directory with coursePrefix in
-                        the current working directory
+                        the current working directory's parent directories
                         ''')
     parser.add_argument('-a', '--assignment-name', dest='assignment', default=None,
                         help='''name of assignment, if no name supplied will try to find directory with coursePrefix
@@ -72,10 +72,10 @@ def main():
         if submission is not None:
             gradeFileInfo = FileInfo(cwd, directory, options.gradeFilename)
             gradeText = gradeFileInfo.contentsOf()
-            rubricText = ""
-            comments = []
+            # download rubric comments for files
             rubricText = submission.rubricCommentsByFile(files, cpAssignment)
 
+            # create string with rubric comment and any existing text in the grade file
             s = f"{rubricText}\n\n{gradeText}"
             gradeFileInfo.writeTo(s)
 

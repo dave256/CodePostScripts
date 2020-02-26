@@ -12,8 +12,13 @@ import glob
 # ----------------------------------------------------------------------
 
 class DirectoryInfo:
+    "class for accessing contents of a directory"
 
     def __init__(self, dirPath, *args):
+        """
+        :param dirPath: path for the directory
+        :param args: any additional directories to add onto end of path
+        """
         self._dirPath = os.path.join(dirPath, *args)
         self._files = set()
         self._directories = set()
@@ -23,6 +28,7 @@ class DirectoryInfo:
         return self._dirPath
 
     def updateFileInfo(self):
+        "refresh the contents of the directory"
         self._files.clear()
         self._directories.clear()
         allFiles = glob.glob(f"{self._dirPath}/*")
@@ -33,18 +39,32 @@ class DirectoryInfo:
                 self._files.add(f)
 
     def directories(self) -> set:
+        "returns set of directories in the directory"
         return self._directories
 
     def files(self) -> set:
+        "returns set of files (not including any directories) in the directory"
         return self._files
 
-    def __contains__(self, item):
-        return item in self._files or item in self._directories
+    def __contains__(self, name) -> bool:
+        """
+        :param name: filename to check if exists here
+        :return: True if name is a directory or file in this directory, False otherwise
+        """
+        return name in self._files or name in self._directories
 
     def containsFile(self, filename):
+        """
+        :param filename: filename to check if exists here
+        :return: True if name is a file in this directory, False otherwise
+        """
         return filename in self._files
 
     def containsDirectory(self, directory):
+        """
+        :param directory: directory name to check if exists here
+        :return: True if name is a directory in this directory, False otherwise
+        """
         return directory in self._directories
 
 # ----------------------------------------------------------------------
@@ -65,6 +85,11 @@ class FileInfo:
 
     @staticmethod
     def infoForFilePath(filePath=None, coursePrefix="CS"):
+        """
+        :param filePath: full file path to search, uses os.getcwd() if None is passed
+        :param coursePrefix: prefix of directory to assume is a course bane
+        :return: courseName, assignment, studentEmail, and filename for the filePath
+        """
         if filePath is None:
             filePath = os.getcwd()
         courseName, other = FileInfo.findDirectoryStartingWith(filePath, coursePrefix)
@@ -100,6 +125,10 @@ class FileInfo:
         return None
 
     def __init__(self, filePath, *args):
+        """
+        :param filePath: path for the file
+        :param args: any additional directories and filename to add onto end of path
+        """
         self._filePath = os.path.join(filePath, *args)
         self._contents = None
 
@@ -110,9 +139,14 @@ class FileInfo:
         return self._filePath
 
     def exists(self) -> bool:
+        "returns True if file exists, False otherwise"
         return os.path.exists(self._filePath)
 
     def isDir(self) -> (bool, bool):
+        """if filePath does not exist, returns False, False
+        if filePath exists and is a directory, returns True, True
+        if file path exists but is not a directory, returns True, False
+        """
         if not os.path.exists(self._filePath):
             return False, False
         else:
@@ -125,6 +159,7 @@ class FileInfo:
         return FileInfo.extensionForFilePath(self._filePath)
 
     def contentsOf(self) -> str:
+        """returns data in the file or empty string if file does not exist"""
         if self._contents is None:
             if os.path.exists(self._filePath):
                 with open(self._filePath, 'r') as f:
@@ -145,6 +180,10 @@ class FileInfo:
             return self._lastFourPaths()
 
     def filePathWithNewName(self, newName) -> str:
+        """
+        :param newName: new name for the file
+        :return: file path with the filename at end of path changed to newName
+        """
         directoryPath, fileName = os.path.split(self._filePath)
         return os.path.join(directoryPath, newName)
 
@@ -166,7 +205,12 @@ class FileInfo:
         remaining, one = os.path.split(remaining)
         return one, two, three, four
 
-    def writeTo(self, newContents) -> None:
+    def writeTo(self, newContents: str) -> None:
+        """
+        writes newContents to the file path
+        :param newContents: string to write to the file
+        :return: None
+        """
         with open(self._filePath, 'w') as f:
             f.write(newContents)
 
