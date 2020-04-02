@@ -73,7 +73,7 @@ class FileInfo:
 
     @staticmethod
     def extensionForFilePath(filePath):
-        return os.path.splitext()[-1]
+        return os.path.splitext(filePath)[-1]
 
     @staticmethod
     def filenameForFilePath(filePath):
