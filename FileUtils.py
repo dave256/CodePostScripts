@@ -163,7 +163,14 @@ class FileInfo:
         if self._contents is None:
             if os.path.exists(self._filePath):
                 with open(self._filePath, 'r') as f:
-                    self._contents = f.read()
+                    try:
+                        self._contents = f.read()
+                    except:
+                        print(f"error reading {self}")
+                        with open(self._filePath, 'rb') as f:
+                            s = f.read()
+                            s = "".join([chr(x) for x in s if x < 128])
+                        self._contents = s
             else:
                 self._contents = ""
         return self._contents
