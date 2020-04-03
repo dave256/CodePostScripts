@@ -162,15 +162,13 @@ class FileInfo:
         """returns data in the file or empty string if file does not exist"""
         if self._contents is None:
             if os.path.exists(self._filePath):
-                with open(self._filePath, 'r') as f:
+                with open(self._filePath, 'rb') as f:
                     try:
-                        self._contents = f.read()
+                        s = f.read()
+                        # limit to only ASCII characters not including 0
+                        self._contents = "".join([chr(x) for x in s if 0 < x < 128])
                     except:
                         print(f"error reading {self}")
-                        with open(self._filePath, 'rb') as f:
-                            s = f.read()
-                            s = "".join([chr(x) for x in s if x < 128])
-                        self._contents = s
             else:
                 self._contents = ""
         return self._contents
