@@ -148,6 +148,10 @@ class CPRubricCategory:
         """
         return self._sortKey < other._sortKey
 
+    def addRubricComment(self, text: str, pointDelta: int, sortKey: int) -> CPRubricComment:
+        c = codepost.rubric_comment.create(category=self._category.id, text=text, pointDelta=pointDelta, sortKey=sortKey)
+        return CPRubricComment(c, self)
+
     def __str__(self) -> str:
         return self._name
 
@@ -419,6 +423,9 @@ class CPAssignment:
             self._loadRubricCategories()
         return self._rubricCommentIDs.get(comment.rubricCommentID(), None)
 
+    def addRubricCategory(self, name: str, pointLimit: int, sortKey: int, helpText: str = "") -> CPRubricCategory:
+        rc = codepost.rubric_category.create(name=name, assignment=self._assignment.id, pointLimit=pointLimit, sortKey=sortKey, helpText=helpText)
+        return CPRubricCategory(rc)
 
 class CPCourse:
 
