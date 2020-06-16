@@ -9,6 +9,7 @@
 from argparse import ArgumentParser
 from CPAPI import *
 from FileUtils import *
+from cpAddRubric import makeRubric
 
 # ----------------------------------------------------------------------
 
@@ -22,7 +23,12 @@ def main():
                         help='''name of course, if no name supplied, will try to find directory with coursePrefix in
                         the current working directory's parent directories
                         ''')
-    parser.add_argument("assignment", nargs='*', default=None)
+
+    parser.add_argument("assignment",
+                        help='''name of assignment to create''')
+
+    parser.add_argument("rubricFilename", nargs='?', default=None,
+                        help='''name of file containing rubric to add to the assignment''')
 
     options = parser.parse_args()
     if options.course is None:
@@ -30,15 +36,20 @@ def main():
     else:
         course = options.course
 
-    if options.assignment == []:
+    if options.assignment is None:
         assignment = input("enter assignment name: ")
     else:
-        assignment = options.assignment[0]
+        assignment = options.assignment
 
-    print(f"make assignment {assignment} for {course}")
+    print(f"make assignment {options.assignment} for {course}")
+
     CP.init()
     c = CP.course(course)
-    c.makeAssignment(assignment)
+    a = c.makeAssignment(assignment)
+    if options.rubricFilename is not None:
+        print(f"add rubric from {options.rubricFilename}")
+        makeRubric(a, options.rubricFilename)
+
 
 # ----------------------------------------------------------------------
 
