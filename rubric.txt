@@ -1,0 +1,30 @@
+75 Correctness
+2 minor correctness issue
+5 minor correctness issue
+10 significant correctness issue
+15 significant correctness issue
+20 significant correctness issue
+25 multiple significant issues with code
+30 multiple significant issues with code
+35 multiple significant issues with code
+40 multiple significant issues with code
+45 multiple significant issues with code
+50 multiple significant issues with code
+60 multiple significant issues with code
+75 no code or numerous issues with code
+
+15 Organization/Style
+0 other style issue
+2 other style issue
+2 use descriptive variable names
+5 use descriptive variable names
+2 follow naming conventions (camelCase for variables/functions, CamelCase for classes)
+2 spacing between sections of code and functions
+2 extra unnecessary code
+5 code not organized into functions/methods
+
+10 Comments
+1 needs comments
+3 needs comments
+5 needs comments
+10 code has no comments
