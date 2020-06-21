@@ -435,15 +435,19 @@ class CPCourse:
         """
         self._course = course
 
-    def makeAssignment(self, name: str) -> CPAssignment:
+    def makeAssignment(self, name: str, points: int = 100) -> CPAssignment:
         """
         create an assignment with the specified name unless it already exists
         :param name: name of the assignment to make
+        :param points: number of points for the assignment
         :return: the Assignment object that existed or is created
         """
         assignment = self._course.assignments.by_name(name)
         if assignment is None:
-            assignment = codepost.assignment.create(course=self._course.id, name=name, points=100)
+            assignment = codepost.assignment.create(course=self._course.id, name=name, points = points,
+                                                    forcedRubricMode = True, collaborativeRubricMode = True,
+                                                    showFrequentlyUsedRubricComments = True, commentFeedback = False,
+                                                    liveFeedbackMode = False)
         return CPAssignment(assignment)
 
     def assignment(self, name: str) -> CPAssignment:

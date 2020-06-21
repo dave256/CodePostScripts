@@ -24,6 +24,9 @@ def main():
                         the current working directory's parent directories
                         ''')
 
+    parser.add_argument('-p', '--points', dest='points', default=100,
+                        help='''number of points for assignment, defaults to 100''')
+
     parser.add_argument("assignment",
                         help='''name of assignment to create''')
 
@@ -45,7 +48,7 @@ def main():
 
     CP.init()
     c = CP.course(course)
-    a = c.makeAssignment(assignment)
+    a = c.makeAssignment(assignment, options.points)
     if options.rubricFilename is not None:
         print(f"add rubric from {options.rubricFilename}")
         makeRubric(a, options.rubricFilename)
