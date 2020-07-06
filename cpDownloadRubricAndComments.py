@@ -35,7 +35,9 @@ def main():
                         help='''name of file to download comments into''')
     parser.add_argument('-d', '--directory', dest='oneDirectory', default=None,
                         help='''just download files for the one specified student directory''')
-    parser.add_argument("files", nargs='+', default=None,
+    parser.add_argument('--all-source-files', dest='allSource', action='store_true',
+                        help='''upload all files with .py, .cpp, .hpp, .h, .swift extension''')
+    parser.add_argument("files", nargs='*', default=None,
                         help='''files we want to grab comments from''')
 
     options = parser.parse_args()
@@ -57,6 +59,8 @@ def main():
 
     print(course, assignment)
 
+    sourceExtensions = set((".py", ".cpp", ".hpp", ".swift", ".java", ".c", ".h"))
+
     cwd = os.getcwd()
     if options.oneDirectory is not None:
         directories = [options.oneDirectory]
@@ -73,7 +77,20 @@ def main():
             gradeFileInfo = FileInfo(cwd, directory, options.gradeFilename)
             gradeText = gradeFileInfo.contentsOf()
             # download rubric comments for files
-            rubricText = submission.rubricCommentsByFile(files, cpAssignment)
+            if options.allSource:
+                filesToDownload = files[:]
+                # get files in the student directory
+                studentDirectory = DirectoryInfo(cwd, directory)
+                studentFiles = studentDirectory.files()
+                for f in studentFiles:
+                    info = FileInfo(f)
+                    if info.extension() in sourceExtensions:
+                        filesToDownload.append(info.fileName())
+            else:
+                filesToDownload = files
+
+
+            rubricText = submission.rubricCommentsByFile(filesToDownload, cpAssignment)
 
             # create string with rubric comment and any existing text in the grade file
             s = f"{rubricText}\n\n{gradeText}"

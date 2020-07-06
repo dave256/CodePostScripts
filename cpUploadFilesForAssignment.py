@@ -37,6 +37,9 @@ def main():
     parser.add_argument('--overwrite', dest='overwrite', action='store_true',
                         help='''overwrite files if already exist''')
 
+    parser.add_argument('--all-source-files', dest='allSource', action='store_true',
+                        help='''upload all files with .py, .cpp, .hpp, .h, .swift extension''')
+
     parser.add_argument("files", nargs='+', default=None,
                         help='''list of files (separated by spaces) to upload''')
 
@@ -58,6 +61,8 @@ def main():
     cpAssignment = cpCourse.assignment(assignment)
 
     print(course, assignment)
+
+    sourceExtensions = set((".py", ".cpp", ".hpp", ".swift", ".java", ".c", ".h"))
 
     cwd = os.getcwd()
     if options.oneDirectory is not None:
@@ -85,7 +90,17 @@ def main():
                 if submission is None:
                     submission = cpAssignment.makeSubmissionForStudent(studentEmail)
 
-                for f in files:
+                if options.allSource:
+                    filesToUpload = files[:]
+                    for f in studentFiles:
+                        info = FileInfo(f)
+                        if info.extension() in sourceExtensions:
+                            filesToUpload.append(info.fileName())
+                else:
+                    filesToUpload = files
+
+
+                for f in filesToUpload:
                     info = FileInfo(cwd, studentEmail, f)
                     if info.filePath() in studentFiles:
                         text = info.contentsOf()
