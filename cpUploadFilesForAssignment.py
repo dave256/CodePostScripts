@@ -105,8 +105,10 @@ def main():
                     if info.filePath() in studentFiles:
                         text = info.contentsOf()
                         if text != "":
-                            print(f"upload {info.filePath()}")
-                            submission.uploadFile(f, text, overwrite=options.overwrite)
+                            fileExists = submission.fileWithName(f)
+                            if options.overwrite or not fileExists:
+                                print(f"upload {info.filePath()}")
+                                submission.uploadFile(f, text, overwrite=options.overwrite)
 
                 # upload the result of running my tests
                 # my test scripts put output in grade.txt
