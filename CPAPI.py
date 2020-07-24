@@ -152,6 +152,12 @@ class CPRubricCategory:
         c = codepost.rubric_comment.create(category=self._category.id, text=text, pointDelta=pointDelta, sortKey=sortKey)
         return CPRubricComment(c, self)
 
+    def hasRubricComment(self, text: str) -> bool:
+        for comment in self._comments:
+            if comment.text() == text:
+                return True
+        return False
+
     def __str__(self) -> str:
         return self._name
 

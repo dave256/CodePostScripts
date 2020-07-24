@@ -61,7 +61,10 @@ rubric file should contain something like this
                     spacePos = line.find(" ")
                     pointLimit = int(line[:spacePos])
                     name = line[spacePos+1:]
-                    rubricCategory = assignment.addRubricCategory(name, pointLimit, categoryPosition)
+                    rubricCategory = assignment.categoryNamed(name)
+                    if rubricCategory is None:
+                        print(f"add category: {name}")
+                        rubricCategory = assignment.addRubricCategory(name, pointLimit, categoryPosition)
                     categoryPosition += 1
                     commentPosition = 0
                     state = "comment"
@@ -72,8 +75,10 @@ rubric file should contain something like this
                     spacePos = line.find(" ")
                     pointDelta = int(line[:spacePos])
                     text = line[spacePos+1:]
-                    rubricComment = rubricCategory.addRubricComment(text, pointDelta, commentPosition)
-                    commentPosition += 1
+                    if not rubricCategory.hasRubricComment(text):
+                        print(f"add comment: {text}")
+                        rubricComment = rubricCategory.addRubricComment(text, pointDelta, commentPosition)
+                        commentPosition += 1
 
 # ----------------------------------------------------------------------
 
