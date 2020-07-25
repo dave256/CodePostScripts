@@ -150,11 +150,13 @@ class CPRubricCategory:
 
     def addRubricComment(self, text: str, pointDelta: int, sortKey: int) -> CPRubricComment:
         c = codepost.rubric_comment.create(category=self._category.id, text=text, pointDelta=pointDelta, sortKey=sortKey)
-        return CPRubricComment(c, self)
+        rc = CPRubricComment(c, self)
+        self._comments.append(rc)
+        return rc
 
-    def hasRubricComment(self, text: str) -> bool:
+    def hasRubricComment(self, text: str, pointDelta: int) -> bool:
         for comment in self._comments:
-            if comment.text() == text:
+            if comment.text() == text and comment.pointDelta() == pointDelta:
                 return True
         return False
 

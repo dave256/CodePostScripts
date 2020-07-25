@@ -75,8 +75,8 @@ rubric file should contain something like this
                     spacePos = line.find(" ")
                     pointDelta = int(line[:spacePos])
                     text = line[spacePos+1:]
-                    if not rubricCategory.hasRubricComment(text):
-                        print(f"add comment: {text}")
+                    if not rubricCategory.hasRubricComment(text, pointDelta):
+                        print(f"add comment: {text} : {pointDelta}")
                         rubricComment = rubricCategory.addRubricComment(text, pointDelta, commentPosition)
                         commentPosition += 1
 
