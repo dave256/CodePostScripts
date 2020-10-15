@@ -59,7 +59,7 @@ def main():
 
     print(course, assignment)
 
-    sourceExtensions = set((".py", ".cpp", ".hpp", ".swift", ".java", ".c", ".h"))
+    sourceExtensions = set((".py", ".cpp", ".hpp", ".swift", ".java", ".c", ".h", ".txt"))
 
     cwd = os.getcwd()
     if options.oneDirectory is not None:
