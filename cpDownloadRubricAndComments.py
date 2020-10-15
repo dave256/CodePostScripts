@@ -70,8 +70,7 @@ def main():
 
     directories = [FileInfo.filenameForFilePath(d) for d in directories]
 
-    for directory in directories:
-        print(directory)
+    for directory in sorted(directories):
         submission = cpAssignment.submissionForStudent(directory)
         if submission is not None:
             gradeFileInfo = FileInfo(cwd, directory, options.gradeFilename)
