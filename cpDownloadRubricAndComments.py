@@ -97,6 +97,9 @@ def main():
 
             rubricFileInfo = FileInfo(cwd, directory, options.rubricFilename)
             rubricFileInfo.writeTo(rubricText)
+            score = rubricText.split("\n")[0].strip()
+            print(f"{directory}: {score}")
+
 
 # ----------------------------------------------------------------------
 
