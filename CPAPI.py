@@ -289,7 +289,10 @@ class CPSubmission:
         deductions = { "Other": 0.0 }
 
         allComments = []
-        for fileName in fileNamesToProcess:
+        localFiles = fileNamesToProcess[:]
+        if '1output.txt' not in localFiles:
+            localFiles.append('1output.txt')
+        for fileName in localFiles:
             f = self.fileWithName(fileName)
             fileComments = []
             if f is not None:
