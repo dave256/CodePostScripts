@@ -40,7 +40,7 @@ def main():
     parser.add_argument('--all-source-files', dest='allSource', action='store_true',
                         help='''upload all files with .py, .cpp, .hpp, .h, .swift extension''')
 
-    parser.add_argument("files", nargs='+', default=None,
+    parser.add_argument("files", nargs='*', default=None,
                         help='''list of files (separated by spaces) to upload''')
 
     options = parser.parse_args()
