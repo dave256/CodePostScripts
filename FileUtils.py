@@ -51,6 +51,8 @@ class DirectoryInfo:
         :param name: filename to check if exists here
         :return: True if name is a directory or file in this directory, False otherwise
         """
+        if isinstance(name, FileInfo):
+            name = str(name)
         return name in self._files or name in self._directories
 
     def containsFile(self, filename):
