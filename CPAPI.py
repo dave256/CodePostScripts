@@ -456,7 +456,7 @@ class CPCourse:
         assignment = self._course.assignments.by_name(name)
         if assignment is None:
             assignment = codepost.assignment.create(course=self._course.id, name=name, points = points,
-                                                    forcedRubricMode = True, collaborativeRubricMode = True,
+                                                    forcedRubricMode = False, collaborativeRubricMode = True,
                                                     showFrequentlyUsedRubricComments = True, commentFeedback = False,
                                                     liveFeedbackMode = False)
         return CPAssignment(assignment)
