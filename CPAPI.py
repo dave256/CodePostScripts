@@ -174,6 +174,12 @@ class CPFile:
         self._comments = None
         self._code = None
 
+    def contents(self) -> str:
+        """
+        :return: the content of the file
+        """
+        return self._file.code
+
     def codeLines(self, startLine, endLine) -> str:
         """
         :param startLine: starting line number
