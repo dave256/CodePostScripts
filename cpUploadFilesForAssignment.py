@@ -119,6 +119,13 @@ def main():
                     if text == "":
                         text = "test output\n"
                     submission.uploadFile('1output.txt', text, overwrite=options.overwrite)
+
+                # upload help.txt (if it exists) as 2help.txt
+                helpFile = FileInfo(cwd, studentEmail, "help.txt")
+                if helpFile.exists():
+                    text = helpFile.contentsOf()
+                    submission.uploadFile("2help.txt", text, overwrite=options.overwrite)
+
             print()
 
 # ----------------------------------------------------------------------
